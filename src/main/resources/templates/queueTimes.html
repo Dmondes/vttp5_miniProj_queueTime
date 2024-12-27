@@ -1,0 +1,198 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Queue Times</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+            }
+            .controls {
+                margin: 20px 0;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .nav-buttons {
+                display: flex;
+                gap: 10px;
+            }
+            .back-link {
+                display: inline-block;
+                padding: 8px 15px;
+                background-color: #2c3e50;
+                color: white;
+                text-decoration: none;
+                border-radius: 4px;
+            }
+            .back-link:hover {
+                background-color: #34495e;
+            }
+            .sort-button {
+                display: inline-block;
+                padding: 8px 15px;
+                background-color: #34495e;
+                color: white;
+                text-decoration: none;
+                border-radius: 4px;
+            }
+            .sort-button:hover {
+                background-color: #2c3e50;
+            }
+            .ride-list {
+                list-style-type: none;
+                padding: 0;
+            }
+            .ride-item {
+                padding: 15px;
+                margin: 10px 0;
+                background-color: #f5f5f5;
+                border-radius: 5px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .ride-info {
+                flex-grow: 1;
+            }
+            .ride-name {
+                font-weight: bold;
+                font-size: 1.1em;
+            }
+            .land-header {
+                background-color: #2c3e50;
+                color: white;
+                padding: 10px;
+                margin-top: 20px;
+                border-radius: 5px;
+            }
+            .wait-time {
+                font-weight: bold;
+                color: #e74c3c;
+                font-size: 1.2em;
+                margin-left: 15px;
+            }
+            .status {
+                color: #666;
+                font-size: 0.9em;
+                margin-top: 5px;
+            }
+            .status-open {
+                color: #27ae60;
+            }
+            .status-closed {
+                color: #c0392b;
+            }
+            .last-updated {
+                color: #7f8c8d;
+                font-size: 0.8em;
+                margin-top: 5px;
+            }
+            .save-button {
+                padding: 6px 12px;
+                background-color: #27ae60;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 0.9em;
+            }
+            .save-button:hover {
+                background-color: #219a52;
+            }
+            .ride-actions {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .message {
+                background-color: #d4edda;
+                color: #155724;
+                padding: 10px;
+                border-radius: 4px;
+                margin-bottom: 15px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Current Queue Times</h1>
+
+        <!-- Success message -->
+        <div th:if="${message}" class="message" th:text="${message}"></div>
+
+        <div th:if="${queueTimes.empty}">
+            <p>No queue times available for this park.</p>
+        </div>
+
+        <div th:unless="${queueTimes.empty}">
+            <div class="controls">
+                <!-- Left side navigation buttons -->
+                <div class="nav-buttons">
+                    <a
+                        th:href="@{/country/{country}(country=${country})}"
+                        class="back-link"
+                        >Back to Park List</a
+                    >
+                    <a
+                        th:if="${session.user}"
+                        th:href="@{/dashboard}"
+                        class="back-link"
+                        >Back to Dashboard</a
+                    >
+                </div>
+
+                <!-- Right side sort button -->
+                <a
+                    th:href="@{/park/{parkId}/queue-times(parkId=${parkId},sort='waittime')}"
+                    class="sort-button"
+                    >Sort by Wait Time</a
+                >
+            </div>
+
+            <ul class="ride-list">
+                <li th:each="ride : ${queueTimes}" class="ride-item">
+                    <div class="ride-info">
+                        <div class="ride-name" th:text="${ride.name}"></div>
+                        <div class="status">
+                            Status:
+                            <span
+                                th:class="${ride.open ? 'status-open' : 'status-closed'}"
+                                th:text="${ride.open ? 'Open' : 'Closed'}"
+                            ></span>
+                        </div>
+                        <div
+                            class="last-updated"
+                            th:text="'Last Updated: ' + ${#temporals.format(ride.lastUpdated, 'yyyy-MM-dd HH:mm:ss')}"
+                        ></div>
+                    </div>
+                    <div class="ride-actions">
+                        <div class="wait-time" th:if="${ride.open}">
+                            <span th:text="${ride.waitTime} + ' min'"></span>
+                        </div>
+                        <form
+                            th:if="${session.user}"
+                            th:action="@{/saveRide}"
+                            method="post"
+                        >
+                            <input
+                                type="hidden"
+                                name="parkId"
+                                th:value="${parkId}"
+                            />
+                            <input
+                                type="hidden"
+                                name="rideId"
+                                th:value="${ride.id}"
+                            />
+                            <button type="submit" class="save-button">
+                                Save Ride
+                            </button>
+                        </form>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </body>
+</html>

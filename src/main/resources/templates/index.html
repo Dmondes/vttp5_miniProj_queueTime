@@ -1,0 +1,100 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>Login</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <style>
+            .container {
+                max-width: 400px;
+                margin: 50px auto;
+                padding: 20px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                border-radius: 5px;
+            }
+            .form-group {
+                margin-bottom: 15px;
+            }
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+            }
+            .form-group input {
+                width: 100%;
+                padding: 8px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+            }
+            .btn {
+                background-color: #2c3e50;
+                color: white;
+                padding: 10px 15px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+            .error {
+                color: red;
+                margin-bottom: 10px;
+            }
+            .register-link {
+                margin-top: 15px;
+                text-align: center;
+            }
+            .attribution {
+                text-align: center;
+                margin-top: 20px;
+                padding-top: 15px;
+                border-top: 1px solid #eee;
+                font-size: 0.9em;
+                color: #666;
+            }
+            .attribution a {
+                color: #2c3e50;
+                text-decoration: none;
+            }
+            .attribution a:hover {
+                text-decoration: underline;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Login</h2>
+            <div th:if="${error}" class="error" th:text="${error}"></div>
+
+            <form th:action="@{/login}" method="post">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        required
+                    />
+                </div>
+
+                <button type="submit" class="btn">Login</button>
+            </form>
+
+            <div class="register-link">
+                <p>
+                    New user?
+                    <a th:href="@{/register}">Register here</a>
+                </p>
+            </div>
+
+            <div class="attribution">
+                Powered by
+                <a href="https://queue-times.com/" target="_blank"
+                    >Queue-Times.com</a
+                >
+            </div>
+        </div>
+    </body>
+</html>

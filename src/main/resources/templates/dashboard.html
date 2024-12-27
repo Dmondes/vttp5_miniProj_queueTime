@@ -1,0 +1,103 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>My Dashboard</title>
+        <!-- ... existing styles ... -->
+        <style>
+        .header-buttons {
+               display: flex;
+               gap: 10px;
+           }
+           .refresh-btn {
+               background-color: #27ae60;
+               color: white;
+               padding: 8px 15px;
+               border: none;
+               border-radius: 4px;
+               cursor: pointer;
+           }
+           .refresh-btn:hover {
+               background-color: #219a52;
+           }
+           .last-updated {
+               color: #666;
+               font-size: 0.9em;
+               margin-top: 5px;
+           }
+            .ride-card {
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                padding: 15px;
+                position: relative;
+                margin-bottom: 10px;
+            }
+            .ride-status {
+                margin-top: 5px;
+                font-size: 0.9em;
+            }
+            .wait-time {
+                font-weight: bold;
+                color: #e74c3c;
+            }
+            .success-message {
+                    color: #155724;
+                    background-color: #d4edda;
+                    border: 1px solid #c3e6cb;
+                    padding: 10px;
+                    border-radius: 4px;
+                    margin-bottom: 15px;
+                }
+                .error-message {
+                    color: #721c24;
+                    background-color: #f8d7da;
+                    border: 1px solid #f5c6cb;
+                    padding: 10px;
+                    border-radius: 4px;
+                    margin-bottom: 15px;
+                }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h2>Welcome, <span th:text="${user.username}"></span>!</h2>
+            <div class="header-buttons">
+                <form th:action="@{/dashboard/refresh}" method="post" style="display: inline;">
+                    <button type="submit" class="refresh-btn">Refresh Wait Times</button>
+                </form>
+                <a th:href="@{/logout}" class="logout-btn">Logout</a>
+            </div>
+        </div>
+
+        <div class="dashboard-header">
+            <h3>My Saved Rides</h3>
+            <div th:if="${message}" class="success-message" th:text="${message}"></div>
+            <div th:if="${error}" class="error-message" th:text="${error}"></div>
+        </div>
+
+        <div class="ride-list">
+            <div th:each="entry : ${savedRides}">
+                <div th:each="ride : ${entry.value}" class="ride-card">
+                    <div class="ride-name" th:text="${ride.name}"></div>
+                    <div class="ride-status">
+                        Status:
+                        <span th:text="${ride.open ? 'Open' : 'Closed'}"></span>
+                    </div>
+                    <div class="wait-time" th:if="${ride.open}">
+                        Wait Time:
+                        <span th:text="${ride.waitTime} + ' min'"></span>
+                    </div>
+                    <form th:action="@{/removeRide}" method="post" style="display: inline">
+                        <input type="hidden" name="parkId" th:value="${entry.key}" />
+                        <input type="hidden" name="rideId" th:value="${ride.id}" />
+                        <button type="submit" class="remove-btn">Remove</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+            <div>
+                    <a th:href="@{/countries}">Browse parks</a>
+            </div>
+        </div>
+    </body>
+</html>

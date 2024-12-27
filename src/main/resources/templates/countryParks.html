@@ -1,0 +1,133 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title th:text="'Theme Parks in ' + ${country}"></title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+                background-color: #f0f2f5;
+                color: #333;
+            }
+
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+
+            h1 {
+                color: #2c3e50;
+                text-align: center;
+                margin-bottom: 30px;
+                font-size: 2.5em;
+            }
+
+            .park-list {
+                list-style-type: none;
+                padding: 0;
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                gap: 20px;
+            }
+
+            .park-item {
+                background-color: white;
+                border-radius: 10px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                transition:
+                    transform 0.2s ease,
+                    box-shadow 0.2s ease;
+            }
+
+            .park-item:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            }
+
+            .park-link {
+                text-decoration: none;
+                color: #2c3e50;
+                display: block;
+                padding: 20px;
+                border-radius: 10px;
+                transition: background-color 0.2s ease;
+            }
+
+            .park-link:hover {
+                background-color: #f8f9fa;
+            }
+
+            .park-name {
+                font-size: 1.2em;
+                font-weight: bold;
+                margin: 0;
+            }
+
+            .back-link {
+                display: inline-block;
+                margin-top: 30px;
+                padding: 12px 24px;
+                background-color: #2c3e50;
+                color: white;
+                text-decoration: none;
+                border-radius: 5px;
+                transition: background-color 0.2s ease;
+                font-weight: bold;
+            }
+
+            .back-link:hover {
+                background-color: #34495e;
+            }
+
+            .no-parks {
+                text-align: center;
+                padding: 40px;
+                background-color: white;
+                border-radius: 10px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                margin: 20px 0;
+            }
+
+            @media (max-width: 768px) {
+                .park-list {
+                    grid-template-columns: 1fr;
+                }
+
+                .container {
+                    padding: 10px;
+                }
+
+                h1 {
+                    font-size: 2em;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1 th:text="'Theme Parks in ' + ${country}"></h1>
+
+            <div th:if="${parks.empty}" class="no-parks">
+                <p>No parks found in this country.</p>
+            </div>
+
+            <div th:unless="${parks.empty}">
+                <ul class="park-list">
+                    <li th:each="park : ${parks}" class="park-item">
+                        <a
+                            th:href="@{/park/{id}/queue-times(id=${park.id},country=${country})}"
+                            class="park-link"
+                        >
+                            <p class="park-name" th:text="${park.name}"></p>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <a href="/countries" class="back-link">Back to Countries</a>
+        </div>
+    </body>
+</html>
