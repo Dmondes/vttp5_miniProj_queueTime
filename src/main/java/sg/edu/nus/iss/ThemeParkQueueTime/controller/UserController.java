@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,7 +28,8 @@ public class UserController {
     }
 
     @GetMapping("/register")
-    public String showRegisterPage() {
+    public String showRegisterPage(Model model) {
+        model.addAttribute("user", new User());
         return "register";
     }
 
@@ -41,7 +43,7 @@ public class UserController {
         try {
             User user = userService.authenticate(username, password);
             session.setAttribute("user", user);
-            return "redirect:/dashboard";
+            return "redirect:/dashboard"; // redirect as a new GET request
         } catch (Exception e) {
             model.addAttribute("error", "Invalid credentials");
             return "index";
@@ -50,7 +52,7 @@ public class UserController {
 
     @PostMapping("/register")
     public String register(
-        @Valid User user,
+        @Valid @ModelAttribute("user") User user,
         BindingResult result,
         Model model
     ) {
@@ -59,7 +61,7 @@ public class UserController {
         }
         try {
             userService.saveUser(user);
-            return "redirect:/?registered=true"; // Changed to redirect to root path
+            return "redirect:/?registered=true";
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
             return "register";

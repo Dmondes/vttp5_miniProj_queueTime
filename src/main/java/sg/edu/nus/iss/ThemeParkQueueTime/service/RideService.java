@@ -25,7 +25,6 @@ public class RideService {
     RestTemplate restTemplate = new RestTemplate();
     private static final String BASE_URL = "https://queue-times.com/parks/";
 
-
     public List<Ride> getQueueTimes(String parkId) {
         // First get the park ID from Redis
         if (parkId == null) {
@@ -111,6 +110,7 @@ public class RideService {
 
         if (rideObject.containsKey("last_updated")) {
             String lastUpdatedStr = rideObject.getString("last_updated");
+            //Parse to localdatetime format
             ride.setLastUpdated(
                 Instant.parse(lastUpdatedStr)
                     .atZone(ZoneId.systemDefault())

@@ -19,7 +19,7 @@ public class MapRepo {
 
     public void setMapAll(
         String key,
-        Map<? extends Object, ? extends Object> map
+        Map<? extends Object, ? extends Object> map //allow various data types
     ) {
         template.opsForHash().putAll(key, map);
     }

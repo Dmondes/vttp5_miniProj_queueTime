@@ -2,6 +2,7 @@ package sg.edu.nus.iss.ThemeParkQueueTime.model;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
@@ -14,6 +15,10 @@ public class User {
 
     @NotBlank(message = "Please enter email")
     @Email(message = "Invalid email format")
+    @Pattern(
+        regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+        message = "Invalid email format"
+    )
     private String email;
 
     @NotBlank(message = "Password is required")
@@ -29,6 +34,9 @@ public class User {
             message = "Username between 3 to 20 characters"
         ) String username,
         @NotBlank(message = "Please enter email") @Email(
+            message = "Invalid email format"
+        ) @Pattern(
+            regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
             message = "Invalid email format"
         ) String email,
         @NotBlank(message = "Password is required") @Size(

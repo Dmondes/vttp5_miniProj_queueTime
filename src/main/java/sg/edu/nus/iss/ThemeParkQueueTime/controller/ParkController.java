@@ -30,7 +30,7 @@ public class ParkController {
         Set<String> countries = themeParkService.getCountryKeys(".*"); //start with prefix
         Set<String> removedDot = countries
             .stream()
-            .map(country -> country.replaceFirst("^\\.", ""))
+            .map(country -> country.replaceFirst("^\\.", "")) // remove prefix from each country
             .collect(Collectors.toSet());
         model.addAttribute("countries", removedDot);
         return "countries";
@@ -39,8 +39,8 @@ public class ParkController {
     @GetMapping("/country/{country}")
     public String showCountryParks(@PathVariable String country, Model model) {
         List<Park> parks = themeParkService.getParksFromCountry(country);
-        parks.forEach(park ->
-            park.setName(park.getName().replaceAll("[\"']", ""))
+        parks.forEach(
+            park -> park.setName(park.getName().replaceAll("[\"']", "")) // remove single quotation marks
         );
         model.addAttribute("country", country);
         model.addAttribute("parks", parks);

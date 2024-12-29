@@ -3,11 +3,11 @@ package sg.edu.nus.iss.ThemeParkQueueTime.model;
 import java.util.List;
 
 public class LandRide {
+
     private int id;
     private String name;
     private List<Ride> rides;
 
-    // Getters and Setters
     public int getId() {
         return id;
     }

@@ -25,19 +25,16 @@ public class UserService {
     @Autowired
     private RideService rideService;
 
+    public void saveUser(User user) {
+        if (exists(user.getUsername())) {
+            throw new RuntimeException("Username already exists");
+        }
+        save(user);
+    }
+
     public void save(User user) {
-        String key = ":" + user.getUsername();
+        String key = ":" + user.getUsername(); // add prefix
         mapRepo.setMapAll(key, convertUserToMap(user));
-    }
-
-    public User findByUsername(String username) {
-        String key = ":" + username;
-        Map<Object, Object> userData = mapRepo.allEntries(key);
-        return convertMapToUser(userData);
-    }
-
-    public boolean exists(String username) {
-        return keyRepo.hasKey(":" + username);
     }
 
     private Map<String, String> convertUserToMap(User user) {
@@ -49,15 +46,24 @@ public class UserService {
         return map;
     }
 
+    public User getUser(String username) {
+        return findByUsername(username);
+    }
+
+    public User findByUsername(String username) {
+        String key = ":" + username;
+        Map<Object, Object> userData = mapRepo.allEntries(key); //allEntries is obj, obj
+        return convertMapToUser(userData);
+    }
+
     private User convertMapToUser(Map<Object, Object> map) {
         if (map.isEmpty()) {
             return null;
         }
         User user = new User();
-        user.setUsername((String) map.get("username"));
+        user.setUsername((String) map.get("username")); //cast it from obj to String
         user.setEmail((String) map.get("email"));
         user.setPassword((String) map.get("password"));
-
         String savedRidesStr = (String) map.get("savedRides");
         if (savedRidesStr != null && !savedRidesStr.isEmpty()) {
             user.getSavedRides().addAll(List.of(savedRidesStr.split(",")));
@@ -65,15 +71,8 @@ public class UserService {
         return user;
     }
 
-    public void saveUser(User user) {
-        if (exists(user.getUsername())) {
-            throw new RuntimeException("Username already exists");
-        }
-        save(user);
-    }
-
-    public User getUser(String username) {
-        return findByUsername(username);
+    public boolean exists(String username) {
+        return keyRepo.hasKey(":" + username);
     }
 
     public User authenticate(String username, String password) {
@@ -116,13 +115,11 @@ public class UserService {
                 if (parts.length == 2) {
                     String parkId = parts[0];
                     String rideId = parts[1];
-
                     // Get fresh queue times from API
                     List<Ride> freshParkRides = rideService.getQueueTimes(
                         parkId
                     );
-
-                    // Check if ride still exists
+                    // Check if ride still exists, iterate using anymatch for faster looping than for-each
                     boolean rideExists = freshParkRides
                         .stream()
                         .anyMatch(ride ->
@@ -143,7 +140,7 @@ public class UserService {
 
     public Map<String, List<Ride>> getSavedRides(String username) {
         User user = getUser(username);
-        if (user != null && !user.getSavedRides().isEmpty()) {
+        if (user != null && !user.getSavedRides().isEmpty()) { //return empty map if blank
             Map<String, List<Ride>> ridesWithParkId = new HashMap<>();
 
             for (String combinedId : user.getSavedRides()) {
@@ -151,8 +148,7 @@ public class UserService {
                 if (parts.length == 2) {
                     String parkId = parts[0];
                     String rideId = parts[1];
-
-                    // Always get fresh data from API
+                    // Get fresh data from API of the park
                     List<Ride> freshParkRides = rideService.getQueueTimes(
                         parkId
                     );
@@ -161,9 +157,9 @@ public class UserService {
                         .filter(ride ->
                             String.valueOf(ride.getId()).equals(rideId)
                         )
-                        .findFirst()
+                        .findFirst() //stop at first match
                         .ifPresent(ride -> {
-                            if (!ridesWithParkId.containsKey(parkId)) {
+                            if (!ridesWithParkId.containsKey(parkId)) { // check for existing park entry
                                 ridesWithParkId.put(parkId, new ArrayList<>());
                             }
                             ridesWithParkId.get(parkId).add(ride);

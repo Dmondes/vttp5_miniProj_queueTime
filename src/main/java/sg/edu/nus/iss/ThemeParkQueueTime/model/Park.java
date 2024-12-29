@@ -68,29 +68,13 @@ public class Park {
 
     @Override
     public String toString() {
-        return (
-            "Park{" +
-            "id=" +
-            id +
-            ", name='" +
-            name +
-            '\'' +
-            ", country='" +
-            country +
-            '\'' +
-            ", continent='" +
-            continent +
-            '\'' +
-            ", latitude='" +
-            latitude +
-            '\'' +
-            ", longitude='" +
-            longitude +
-            '\'' +
-            ", timezone='" +
-            timezone +
-            '\'' +
-            '}'
-        );
+        return ("Park{" + "id=" + id +
+                ", name='" + name + '\'' +
+                ", country='" + country +'\'' +
+                ", continent='" + continent +'\'' +
+                ", latitude='" + latitude +'\'' +
+                ", longitude='" + longitude +'\'' +
+                ", timezone='" + timezone +'\'' +
+                '}');
     }
 }

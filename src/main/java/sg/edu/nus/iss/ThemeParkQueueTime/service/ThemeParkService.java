@@ -24,24 +24,17 @@ import sg.edu.nus.iss.ThemeParkQueueTime.model.ParkList;
 import sg.edu.nus.iss.ThemeParkQueueTime.repo.KeyRepo;
 import sg.edu.nus.iss.ThemeParkQueueTime.repo.ListRepo;
 
-// import sg.edu.nus.iss.ThemeParkQueueTime.repo.MapRepo;
-
 @Service
 public class ThemeParkService {
 
     RestTemplate restTemplate = new RestTemplate();
     private static final String BASE_URL = "https://queue-times.com";
 
-    // private static final String REDIS_COUNTRY_PARKS_PREFIX = "parks:country:";
-
     @Autowired
     private KeyRepo keyRepo;
 
     @Autowired
     private ListRepo listRepo;
-
-    // @Autowired
-    // private MapRepo mapRepo;
 
     public Set<String> getAllParks() {
         String url = BASE_URL + "/parks.json";
@@ -72,8 +65,6 @@ public class ThemeParkService {
                 );
             }
         } catch (Exception e) {
-            // Log the error and rethrow
-            // In a real application, you'd use a logger here
             System.err.println("Error fetching parks data: " + e.getMessage());
             throw new RuntimeException("Unable to fetch parks data", e);
         }
@@ -107,7 +98,7 @@ public class ThemeParkService {
                     Collectors.toMap(
                         Park::getId,
                         park -> park,
-                        (existing, replacement) -> existing
+                        (existing, replacement) -> existing //keep existing if dup is found
                     )
                 )
                 .values()
@@ -118,13 +109,13 @@ public class ThemeParkService {
                 .stream()
                 .map(Park::toString)
                 .collect(Collectors.joining(","));
-            System.out.println("Unique park saved"); // check park
+            // System.out.println("Unique park saved"); // check park
             listRepo.addToBackListAll(redisKey, parkStrings);
-            System.out.println("check add"); //check add
+            // System.out.println("check add"); //check add
             // Track processed countries
             processedCountries.add(country);
         });
-        System.out.println("done");
+        // System.out.println("done");
     }
 
     public List<ParkList> parseParksResponse(String jsonResponse) {
@@ -132,7 +123,6 @@ public class ThemeParkService {
         JsonReader jsonReader = Json.createReader(
             new StringReader(jsonResponse)
         );
-        // Read the entire JSON array
         JsonArray parkCompaniesArray = jsonReader.readArray();
 
         // List to store parsed park companies
@@ -140,10 +130,8 @@ public class ThemeParkService {
 
         // Iterate through each JSON object in the array
         for (JsonValue jsonValue : parkCompaniesArray) {
-            // Convert to JsonObject for easier processing
             JsonObject companyObject = jsonValue.asJsonObject();
 
-            // Create a new ParkCompany instance
             ParkList parkCompany = new ParkList();
 
             // Parse basic company details
@@ -172,23 +160,18 @@ public class ThemeParkService {
             parkCompany.setParks(parks); // Set parks for the company
             parsedCompanies.add(parkCompany); // Add to list of companies
         }
-        jsonReader.close(); // Close the JSON reader
+        jsonReader.close();
 
         return parsedCompanies;
     }
 
     public Set<String> getCountryKeys(String pattern) {
-        // Use keys method to fetch all keys matching the pattern;
         return keyRepo.keys(pattern);
-    }
-
-    public List<Object> getList(String key) {
-        return listRepo.getList(key);
     }
 
     public List<Park> getParksFromCountry(String country) {
         String restoredKey = "." + country;
-        String countryParks = getList(restoredKey).toString();
+        String countryParks = listRepo.getList(restoredKey).toString();
         List<Park> parks = new ArrayList<>();
         for (String parkString : countryParks.split(
             "(?<=\\}),\\s*(?=Park\\{)"
